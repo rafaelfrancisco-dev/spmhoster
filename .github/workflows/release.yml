@@ -8,14 +8,22 @@ jobs:
   build:
     runs-on: macos-latest
 
+    permissions:
+      contents: write
+
     steps:
     - uses: actions/checkout@v4
     
     - name: Build
       run: swift build -c release
 
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v4
+    - name: Archive Release
+      run: |
+        cd .build/release
+        tar -czf spmhoster-release.tar.gz spmhoster
+
+    - name: Release
+      uses: softprops/action-gh-release@v1
       with:
-        name: spmhoster-release
-        path: .build/release/spmhoster
+        tag_name: build-${{ github.run_number }}
+        files: .build/release/spmhoster-release.tar.gz
