@@ -1,0 +1,24 @@
+{
+    "configurations": [
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:spmhoster}",
+            "name": "Debug spmhoster",
+            "target": "spmhoster",
+            "configuration": "debug",
+            "preLaunchTask": "swift: Build Debug spmhoster"
+        },
+        {
+            "type": "swift",
+            "request": "launch",
+            "args": [],
+            "cwd": "${workspaceFolder:spmhoster}",
+            "name": "Release spmhoster",
+            "target": "spmhoster",
+            "configuration": "release",
+            "preLaunchTask": "swift: Build Release spmhoster"
+        }
+    ]
+}
