@@ -100,7 +100,9 @@ struct ArtifactController: RouteCollection {
     // Generate Public URL
     // Assuming the server is reachable via the Host header, defaulting to localhost:8080 if not present
     let host = req.headers["Host"].first ?? "localhost:8080"
-    let scheme = req.headers["X-Forwarded-Proto"].first ?? "http"
+    let scheme =
+      req.headers["X-Forwarded-Proto"].first
+      ?? (req.application.http.server.configuration.tlsConfiguration == nil ? "http" : "https")
     let url = "\(scheme)://\(host)/artifacts/\(finalFilename)"
 
     // Extract package name (remove .zip) from original filename to keep package identity

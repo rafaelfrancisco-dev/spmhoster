@@ -42,6 +42,29 @@ final class ArtifactControllerTests: XCTestCase {
       })
   }
 
+  func testUploadWithHttpsHeader() async throws {
+    let zipContent = "dummy zip content".data(using: .utf8)!
+    let filename = "test_https.zip"
+    let file = File(data: ByteBuffer(data: zipContent), filename: filename)
+
+    try await app.test(
+      .POST, "upload",
+      beforeRequest: { req async in
+        try? req.content.encode(UploadInput(file: file), as: .formData)
+        req.headers.add(name: "X-Forwarded-Proto", value: "https")
+      },
+      afterResponse: { res async in
+        XCTAssertEqual(res.status, .ok)
+
+        let body = res.body.string
+        XCTAssertTrue(body.contains("url: \"https://localhost:8080/artifacts/test_https.zip\""))
+
+        // Cleanup
+        let filePath = app.directory.workingDirectory + "artifacts/" + filename
+        try? FileManager.default.removeItem(atPath: filePath)
+      })
+  }
+
   func testDownload() async throws {
     let content = "download content".data(using: .utf8)!
     let filename = "download.zip"
