@@ -9,5 +9,12 @@ func routes(_ app: Application) throws {
     "Hello, world!"
   }
 
+  app.get("cert") { req async throws -> Response in
+    guard let config = req.application.storage[CertConfigKey.self] else {
+      throw Abort(.notFound, reason: "Certificate not configured or available")
+    }
+    return try await req.fileio.asyncStreamFile(at: config.certPath)
+  }
+
   try app.register(collection: ArtifactController())
 }

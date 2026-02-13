@@ -26,6 +26,9 @@ public func configure(_ app: Application) async throws {
       privateKey: .privateKey(privateKey)
     )
     app.logger.info("TLS enabled using certificates at \(certPath) and \(keyPath)")
+
+    // Store cert path for download route
+    app.storage[CertConfigKey.self] = CertConfig(certPath: certPath)
   } catch {
     app.logger.warning("Could not load TLS certificates: \(error). Server will start in HTTP mode.")
   }

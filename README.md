@@ -45,7 +45,7 @@ The application supports several command-line arguments to configure its behavio
 | `--port` | `-p` | Set the port the server will run on. | `8080` |
 | `--bind` | `-b` | Bind to the given address (hostname:port). | |
 | `--artifacts-path` | | Custom absolute path for the artifacts folder. | `./artifacts/` |
-| `--max-artifacts-size`| | Maximum size of the artifacts folder (e.g., `500MB`, `1GB`). Oldest files are deleted if limit is exceeded. | Unlimited |
+| `--max-artifacts-size` | | Maximum size of the artifacts folder (e.g., `500MB`, `1GB`). Oldest files are deleted if limit is exceeded. | Unlimited |
 
 ### Examples
 
@@ -92,3 +92,19 @@ Download a stored artifact.
 
 **Example:**
 `http://localhost:8080/artifacts/MyFramework.zip`
+
+### Certificates
+
+Since the server uses a self-signed certificate by default, you may need to trust it manually.
+
+**Download Certificate:**
+
+```bash
+curl -o cert.pem http://localhost:8080/cert
+```
+
+**Trust Certificate (macOS):**
+
+```bash
+sudo security add-trusted-cert -d -r trustRoot -k /Library/Keychains/System.keychain cert.pem
+```
