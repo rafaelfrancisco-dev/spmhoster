@@ -33,7 +33,8 @@ struct ArtifactController: RouteCollection {
       } else {
         throw Abort(
           .badRequest,
-          reason: "File must be provided in 'file' field or via raw binary with X-Filename header")
+          reason: "File must be provided in 'file' field or via raw binary with X-Filename header"
+        )
       }
 
       guard let body = req.body.data else {
@@ -127,6 +128,44 @@ struct ArtifactController: RouteCollection {
           ]
       )
       """
+
+    // Calculate remaining space
+    let fileManager = FileManager.default
+    let resourceKeys: [URLResourceKey] = [.fileSizeKey]
+
+    var totalSize: Int64 = 0
+
+    let artifactsURL = URL(fileURLWithPath: artifactsPath)
+
+    if let files = try? fileManager.contentsOfDirectory(
+      at: artifactsURL,
+      includingPropertiesForKeys: resourceKeys,
+      options: [.skipsHiddenFiles]
+    ) {
+      for fileURL in files {
+        if let resourceValues = try? fileURL.resourceValues(forKeys: Set(resourceKeys)),
+          let fileSize = resourceValues.fileSize
+        {
+          totalSize += Int64(fileSize)  // accumulate size
+        }
+      }
+    }
+
+    if let config = req.application.storage[ArtifactsConfigKey.self],
+      let maxSizeBytes = config.maxSizeBytes
+    {
+      let remainingBytes = max(0, Int64(maxSizeBytes) - totalSize)
+      let formatter = ByteCountFormatter()
+
+      formatter.allowedUnits = [.useAll]
+      formatter.countStyle = .file
+
+      let remainingString = formatter.string(fromByteCount: remainingBytes)
+
+      req.logger.info("Artifact uploaded. Remaining space: \(remainingString)")
+    } else {
+      req.logger.info("Artifact uploaded. Remaining space: ∞")
+    }
 
     return packageManifest
   }
